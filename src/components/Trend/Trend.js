@@ -7,6 +7,7 @@ import { buildSmoothPath, buildLinearPath, injectStyleTag } from '../../helpers/
 import { normalize } from '../../helpers/math.helpers';
 import { generateId } from '../../helpers/misc.helpers';
 import { normalizeDataset, generateAutoDrawCss } from './Trend.helpers';
+import { sortBy, findIndex } from 'lodash';
 
 const propTypes = {
 	data: PropTypes.arrayOf(
@@ -127,7 +128,7 @@ class Trend extends Component {
 			maxY: padding,
 		});
 
-		console.log(normalizedValues);
+		const pointPosition = getPointPosition(normalizedValues, score);
 
 		const path = smooth ? buildSmoothPath(normalizedValues, { radius }) : buildLinearPath(normalizedValues);
 
@@ -149,6 +150,8 @@ class Trend extends Component {
 					fill="none"
 					stroke={gradient ? `url(#${this.gradientId})` : undefined}
 				/>
+				<line x1={pointPosition.x} x2={pointPosition.x} y2={viewBoxHeight} strokeWidth="1" />
+				<circle cx={pointPosition.x} cy={0 + 3.5} r="3" strokeWidth="1" />
 			</svg>
 		);
 	}
@@ -158,3 +161,8 @@ Trend.propTypes = propTypes;
 Trend.defaultProps = defaultProps;
 
 export default Trend;
+
+function getPointPosition(values, score) {
+	const index = findIndex(sortBy(values, 'value'), item => item.value > score);
+	return values[index] ? values[index] : values[values.length - 1];
+}
