@@ -12,12 +12,12 @@ import { sortBy, findIndex } from 'lodash';
 function getPointPosition(values, score) {
 	if (score >= 0) {
 		var index = findIndex(values.slice().reverse(), function(item) {
-			return item.value < score;
+			return item.value < Math.abs(score);
 		});
 		return values[-index] ? values[-index] : values[values.length - 1];
 	} else {
 		var index = findIndex(values, function(item) {
-			return item.value > score;
+			return item.value > Math.abs(score);
 		});
 		return values[index] ? values[index] : values[values.length - 1];
 	}
