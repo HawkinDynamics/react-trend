@@ -69,6 +69,7 @@ class App extends Component {
 					gradient={gradient}
 					radius={radius}
 					score={50}
+					ranges={[0]}
 					strokeWidth={strokeWidth}
 					strokeLinecap={strokeLinecap}
 				/>

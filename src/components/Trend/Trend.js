@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { findDOMNode } from 'react-dom';
 
 import { omit } from '../../utils';
 import { buildSmoothPath, buildLinearPath, injectStyleTag } from '../../helpers/DOM.helpers';
@@ -25,6 +26,7 @@ const propTypes = {
 	padding: PropTypes.number,
 	radius: PropTypes.number,
 	score: PropTypes.number,
+	ranges: PropTypes.array,
 	gradient: PropTypes.arrayOf(PropTypes.string),
 };
 
@@ -70,32 +72,37 @@ class Trend extends Component {
 		return omit(this.props, Object.keys(propTypes));
 	}
 
-	renderGradientDefinition() {
-		const { gradient } = this.props;
+	componentDidUpdate() {
+		const segmentList = findDOMNode(this.path).getTotalLength();
+	}
 
-		return (
-			<defs>
-				<linearGradient id={this.gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
-					{gradient
-						.slice()
-						.reverse()
-						.map((c, index) => (
-							<stop
-								key={index}
-								offset={normalize({
-									value: index,
-									min: 0,
-									// If we only supply a single colour, it will try to normalize
-									// between 0 and 0, which will create NaN. By making the `max`
-									// at least 1, we ensure single-color "gradients" work.
-									max: gradient.length - 1 || 1,
-								})}
-								stopColor={c}
-							/>
-						))}
-				</linearGradient>
-			</defs>
-		);
+	renderGradientDefinition() {
+		const { gradient, ranges } = this.props;
+		return ranges.map((range, i) => {
+			return (
+				<defs>
+					<linearGradient id={this.gradientId} x1="0%" y1="0%" x2={0.33 * i + 1} y2="0%" key={range}>
+						{gradient
+							.slice()
+							.reverse()
+							.map((c, index) => (
+								<stop
+									key={index}
+									offset={normalize({
+										value: index,
+										min: 0,
+										// If we only supply a single colour, it will try to normalize
+										// between 0 and 0, which will create NaN. By making the `max`
+										// at least 1, we ensure single-color "gradients" work.
+										max: gradient.length - 1 || 1,
+									})}
+									stopColor={c}
+								/>
+							))}
+					</linearGradient>
+				</defs>
+			);
+		});
 	}
 
 	render() {
@@ -133,18 +140,9 @@ class Trend extends Component {
 			maxY: padding,
 		});
 
-		const path = smooth ? buildSmoothPath(normalizedValues, { radius }) : buildLinearPath(normalizedValues);
+		console.log(normalizedValues);
 
-		var commands = path.split(/(?=[LMC])/);
-		var pointArrays = commands.map(function(d) {
-			var pointsArray = d.slice(1, d.length).split(',');
-			var pairsArray = [];
-			for (var i = 0; i < pointsArray.length; i += 2) {
-				pairsArray.push([+pointsArray[i], +pointsArray[i + 1]]);
-			}
-			return pairsArray;
-		});
-		console.log(pointArrays);
+		const path = smooth ? buildSmoothPath(normalizedValues, { radius }) : buildLinearPath(normalizedValues);
 
 		return (
 			<svg
@@ -164,7 +162,6 @@ class Trend extends Component {
 					fill="none"
 					stroke={gradient ? `url(#${this.gradientId})` : undefined}
 				/>
-				<circle cx={score} cy="60" r="2" stroke="red" fill="red" strokeWidth="6" />
 			</svg>
 		);
 	}
