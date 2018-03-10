@@ -9,6 +9,11 @@ import { generateId } from '../../helpers/misc.helpers';
 import { normalizeDataset, generateAutoDrawCss } from './Trend.helpers';
 import { sortBy, findIndex } from 'lodash';
 
+function getPointPosition(values, score) {
+	const index = findIndex(sortBy(values, 'value'), item => item.value > score);
+	return values[index] ? values[index] : values[values.length - 1];
+}
+
 const propTypes = {
 	data: PropTypes.arrayOf(
 		PropTypes.oneOfType([
@@ -150,8 +155,12 @@ class Trend extends Component {
 					fill="none"
 					stroke={gradient ? `url(#${this.gradientId})` : undefined}
 				/>
-				<line x1={pointPosition.x} x2={pointPosition.x} y2={viewBoxHeight} strokeWidth="1" />
-				<circle cx={pointPosition.x} cy={0 + 3.5} r="3" strokeWidth="1" />
+				{pointPosition ? (
+					<g>
+						<line x1={pointPosition.x} x2={pointPosition.x} y2={viewBoxHeight} strokeWidth="1" />
+						<circle cx={pointPosition.x} cy={0 + 3.5} r="3" strokeWidth="1" />
+					</g>
+				) : null}
 			</svg>
 		);
 	}
@@ -161,8 +170,3 @@ Trend.propTypes = propTypes;
 Trend.defaultProps = defaultProps;
 
 export default Trend;
-
-function getPointPosition(values, score) {
-	const index = findIndex(sortBy(values, 'value'), item => item.value > score);
-	return values[index] ? values[index] : values[values.length - 1];
-}
