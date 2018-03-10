@@ -78,31 +78,18 @@ class Trend extends Component {
 
 	renderGradientDefinition() {
 		const { gradient, ranges } = this.props;
-		return ranges.map((range, i) => {
-			return (
-				<defs>
-					<linearGradient id={this.gradientId} x1="0%" y1="0%" x2={0.33 * i + 1} y2="0%" key={range}>
-						{gradient
-							.slice()
-							.reverse()
-							.map((c, index) => (
-								<stop
-									key={index}
-									offset={normalize({
-										value: index,
-										min: 0,
-										// If we only supply a single colour, it will try to normalize
-										// between 0 and 0, which will create NaN. By making the `max`
-										// at least 1, we ensure single-color "gradients" work.
-										max: gradient.length - 1 || 1,
-									})}
-									stopColor={c}
-								/>
-							))}
-					</linearGradient>
-				</defs>
-			);
-		});
+		return (
+			<defs>
+				<linearGradient id={this.gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+					<stop offset="0%" stopColor={gradient[0]} />
+					<stop offset="33%" stopColor={gradient[0]} />
+					<stop offset="33%" stopColor={gradient[1]} />
+					<stop offset="67%" stopColor={gradient[1]} />
+					<stop offset="67%" stopColor={gradient[2]} />
+					<stop offset="100%" stopColor={gradient[2]} />
+				</linearGradient>
+			</defs>
+		);
 	}
 
 	render() {
