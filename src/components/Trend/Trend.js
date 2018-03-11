@@ -9,20 +9,6 @@ import { generateId } from '../../helpers/misc.helpers';
 import { normalizeDataset, generateAutoDrawCss } from './Trend.helpers';
 import { sortBy, findIndex } from 'lodash';
 
-function getPointPosition(values, score) {
-	if (score >= 0) {
-		var index = findIndex(values.slice().reverse(), function(item) {
-			return item.value < Math.abs(score);
-		});
-		return values[-index] ? values[-index] : values[values.length - 1];
-	} else {
-		var index = findIndex(values, function(item) {
-			return item.value > Math.abs(score);
-		});
-		return values[index] ? values[index] : values[values.length - 1];
-	}
-}
-
 const propTypes = {
 	data: PropTypes.arrayOf(
 		PropTypes.oneOfType([
@@ -64,6 +50,34 @@ class Trend extends Component {
 		// animations.
 		this.trendId = generateId();
 		this.gradientId = `react-trend-vertical-gradient-${this.trendId}`;
+		this.state = {
+			pointPosition: null,
+		};
+	}
+
+	getPointPosition() {
+		alert(this.props.score);
+		const path = findDOMNode(this.path);
+		const length = path.getTotalLength();
+		const meanAnchor = length / 2;
+		const stdlength = length / 8;
+		const point = path.getPointAtLength(this.props.score * stdlength + meanAnchor);
+		point.color = this.getColor(this.props.score, length);
+		this.setState(currentState => ({
+			...currentState,
+			pointPosition: point,
+		}));
+	}
+
+	getColor(score, length) {
+		const percent = (4 + score) / 8 * 100;
+		if (percent < 33.3333) {
+			return 'red';
+		}
+		if (percent < 66.6666) {
+			return 'blue';
+		}
+		return 'green';
 	}
 
 	componentDidMount() {
@@ -81,6 +95,10 @@ class Trend extends Component {
 
 			injectStyleTag(css);
 		}
+		if (!this.plottedScore) {
+			this.plottedScore = true;
+			this.getPointPosition();
+		}
 	}
 
 	getDelegatedProps() {
@@ -88,7 +106,10 @@ class Trend extends Component {
 	}
 
 	componentDidUpdate() {
-		const segmentList = findDOMNode(this.path).getTotalLength();
+		if (!this.plottedScore) {
+			this.plottedScore = true;
+			this.getPointPosition();
+		}
 	}
 
 	renderGradientDefinition() {
@@ -108,7 +129,8 @@ class Trend extends Component {
 	}
 
 	render() {
-		const { data, smooth, width, height, padding, radius, gradient, score } = this.props;
+		const { data, smooth, width, height, padding, radius, gradient, score, strokeWidth } = this.props;
+		const { pointPosition } = this.state;
 
 		// We need at least 2 points to draw a graph.
 		if (!data || data.length < 2) {
@@ -142,10 +164,7 @@ class Trend extends Component {
 			maxY: padding,
 		});
 
-		const pointPosition = getPointPosition(normalizedValues, score);
-
 		const path = smooth ? buildSmoothPath(normalizedValues, { radius }) : buildLinearPath(normalizedValues);
-
 		return (
 			<svg
 				width={svgWidth}
@@ -166,8 +185,15 @@ class Trend extends Component {
 				/>
 				{pointPosition ? (
 					<g>
-						<line x1={pointPosition.x} x2={pointPosition.x} y2={viewBoxHeight} strokeWidth="1" />
-						<circle cx={pointPosition.x} cy={0 + 3.5} r="3" strokeWidth="1" />
+						<circle
+							id="plottedScore"
+							cx={pointPosition.x}
+							cy={pointPosition.y}
+							r="5"
+							strokeWidth={strokeWidth}
+							fill="#fff"
+							stroke={pointPosition.color}
+						/>
 					</g>
 				) : null}
 			</svg>

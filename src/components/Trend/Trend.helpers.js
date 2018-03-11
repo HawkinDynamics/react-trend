@@ -61,7 +61,23 @@ export const generateAutoDrawCss = ({ id, lineLength, duration, easing }) => {
         stroke-dashoffset: '';
         stroke-dasharray: '';
       }
-    }
+		}
+		#plottedScore{
+			-webkit-animation: 3s ease 0s normal forwards 1 fadein;
+			animation: 3s ease 0s normal forwards 1 fadein;
+	}
+	
+	@keyframes fadein{
+			0% { opacity:0; }
+			95% { opacity:0; }
+			100% { opacity:1; }
+	}
+	
+	@-webkit-keyframes fadein{
+			0% { opacity:0; }
+			95% { opacity:0; }
+			100% { opacity:1; }
+	}
   `;
 
 	// One unfortunate side-effect of the auto-draw is that the line is

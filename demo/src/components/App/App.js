@@ -8,6 +8,7 @@ import Config from '../Config';
 import TrendCode from '../TrendCode';
 import GithubLink from '../GithubLink';
 import Footer from '../Footer';
+import { range } from 'lodash';
 
 import './App.css';
 
@@ -24,7 +25,15 @@ const linecaps = ['butt', 'round', 'square'];
 
 const defaultGradient = gradients[4];
 const defaultLinecap = linecaps[0];
-const placeholderData = [0, 2, 5, 9, 5, 10, 3, 5, 0, 0, 1, 8, 2, 9, 0];
+const placeholderData = (function() {
+	const curve = [];
+	range(1, 5).map(curr => {
+		const calc = Math.exp(-0.5 * Math.pow((3 - curr) / 0.2, 2)) / Math.sqrt(2 * Math.PI);
+		curve.unshift(calc);
+		curve.push(calc);
+	});
+	return curve;
+})();
 
 class App extends Component {
 	constructor(props) {
@@ -68,8 +77,9 @@ class App extends Component {
 					data={placeholderData}
 					gradient={gradient}
 					radius={radius}
-					score={8}
-					ranges={[0]}
+					score={(2.2 - 3) / 0.2}
+					ranges={[0, 1, 2]}
+					gradient={['red', 'blue', 'green']}
 					strokeWidth={strokeWidth}
 					strokeLinecap={strokeLinecap}
 				/>
