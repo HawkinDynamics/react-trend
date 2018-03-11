@@ -56,7 +56,6 @@ class Trend extends Component {
 	}
 
 	getPointPosition() {
-		alert(this.props.score);
 		const path = findDOMNode(this.path);
 		const length = path.getTotalLength();
 		const meanAnchor = length / 2;
