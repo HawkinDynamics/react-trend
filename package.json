@@ -1,6 +1,6 @@
 {
 	"name": "@qwales1/hawkin-react-trend",
-	"version": "2.1.6",
+	"version": "2.1.7",
 	"description": "react-trend React component",
 	"main": "lib/index.js",
 	"module": "es/index.js",
