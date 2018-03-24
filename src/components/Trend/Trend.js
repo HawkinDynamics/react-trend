@@ -60,12 +60,15 @@ class Trend extends Component {
 		const length = path.getTotalLength();
 		const meanAnchor = length / 2;
 		const stdlength = length / 8;
-		const point = path.getPointAtLength(this.props.score * stdlength + meanAnchor);
-		point.color = this.getColor(this.props.score, length);
-		this.setState(currentState => ({
-			...currentState,
-			pointPosition: point,
-		}));
+		const zLength = this.props.score * stdlength + meanAnchor;
+		if (!isNaN(zLength)) {
+			const point = path.getPointAtLength(zLength);
+			point.color = this.getColor(this.props.score, length);
+			this.setState(currentState => ({
+				...currentState,
+				pointPosition: point,
+			}));
+		}
 	}
 
 	getColor(score, length) {
